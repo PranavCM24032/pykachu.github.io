@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyKachu Hunt - Admin Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .font-pixel { font-family: 'Press Start 2P', cursive; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .status-success { color: #22c55e; border-color: #166534; background-color: rgba(20, 83, 45, 0.4); }
+        .status-failed { color: #ef4444; border-color: #991b1b; background-color: rgba(127, 29, 29, 0.4); }
+    </style>
+</head>
+<body class="bg-slate-950 min-h-screen text-slate-200 font-sans">
+    
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-6">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    <span class="font-pixel text-xl md:text-2xl">PyKachu Hunt</span>
+                </h1>
+                <p class="text-slate-500 mt-1">System Status: <span id="statusText" class="text-green-500 font-mono">ONLINE</span></p>
+            </div>
+            
+            <div class="flex flex-wrap gap-2">
+    <button onclick="toggleAutoRefresh()" id="refreshBtn" class="px-4 py-2 rounded border flex items-center gap-2 text-sm font-bold transition-colors bg-green-900/30 border-green-700 text-green-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        </svg>
+        LIVE
+    </button>
+
+    <a href="https://docs.google.com/spreadsheets/d/1GTHTvOZ5WtETFXRkEn9Kd5k7L44klUmrrsW4Z1Dd8YM/edit?gid=0#gid=0" target="_blank" class="px-4 py-2 bg-emerald-900/30 border border-emerald-800 rounded hover:bg-emerald-900/50 text-emerald-400 text-sm font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+        </svg>
+        GOOGLE SHEET
+    </a>
+
+    <a href="player.html" class="px-4 py-2 bg-blue-900/30 border border-blue-800 rounded hover:bg-blue-900/50 text-blue-400 text-sm font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        PLAYER VIEW
+    </a>
+
+
+  
+</div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div class="lg:col-span-1 space-y-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        <h3 class="text-slate-400 text-sm font-bold uppercase">Active Teams</h3>
+                    </div>
+                    <p id="teamCount" class="text-4xl font-bold text-white">0</p>
+                </div>
+                
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+                        </svg>
+                        <h3 class="text-slate-400 text-sm font-bold uppercase">Badges Earned</h3>
+                    </div>
+                    <p id="badgeCount" class="text-4xl font-bold text-white">0</p>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                    <h3 class="text-slate-400 text-sm font-bold uppercase mb-4">Filters</h3>
+                    <div class="mb-4">
+                        <input type="text" id="teamSearch" placeholder="Search Team Name..." onkeyup="renderLogs()" 
+                            class="w-full bg-slate-800 border border-slate-700 p-2 rounded text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="setFilter('ALL')" id="filterAll" class="filter-btn w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors bg-blue-600 text-white">All Events</button>
+                        <button onclick="setFilter('CORRECT')" id="filterCorrect" class="filter-btn w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors hover:bg-slate-800">Successful Solves</button>
+                        <button onclick="setFilter('WRONG')" id="filterWrong" class="filter-btn w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors hover:bg-slate-800">Failed Attempts</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
+                <div class="grid grid-cols-12 gap-4 p-4 border-b border-slate-800 bg-slate-950 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <div class="col-span-2">Time</div>
+                    <div class="col-span-3">Team Name</div>
+                    <div class="col-span-2 text-center">Puzzle</div> 
+                    <div class="col-span-2">Status</div>
+                    <div class="col-span-3">Details</div>
+                </div>
+                <div id="logsContainer" class="divide-y divide-slate-800 max-h-[600px] overflow-y-auto">
+                    </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const GOOGLE_SHEET_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwO-yfCbGDA4W7Wkk0QUXXJUkT54VmPmttSbx52AM9KhF0DFhaIwXOSSAUb48cVT4Fz/exec';
+        
+        let autoRefresh = true;
+        let currentFilter = 'ALL';
+        let refreshInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndRender();
+            startAutoRefresh();
+        });
+
+        async function fetchAndRender() {
+            if (GOOGLE_SHEET_SCRIPT_URL && !GOOGLE_SHEET_SCRIPT_URL.includes("YOUR_GOOGLE_SCRIPT")) {
+                try {
+                    const response = await fetch(GOOGLE_SHEET_SCRIPT_URL);
+                    const data = await response.json();
+                    localStorage.setItem('pokemonHuntLogs', JSON.stringify(data));
+                } catch (e) { console.warn("Cloud fetch failed, using local cache"); }
+            }
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const logs = JSON.parse(localStorage.getItem('pokemonHuntLogs') || '[]');
+            const searchTerm = document.getElementById('teamSearch').value.toLowerCase();
+            
+            // Update stats
+            const uniqueTeams = new Set(logs.map(l => l.teamName)).size;
+            const correctSolves = logs.filter(l => l.status === 'SUCCESS' || l.action === 'SOLVE').length;
+            document.getElementById('teamCount').textContent = uniqueTeams;
+            document.getElementById('badgeCount').textContent = correctSolves;
+
+            // Filter logic
+            let filtered = logs.filter(l => (l.teamName || '').toLowerCase().includes(searchTerm));
+            if (currentFilter === 'CORRECT') filtered = filtered.filter(l => l.status === 'SUCCESS');
+            if (currentFilter === 'WRONG') filtered = filtered.filter(l => l.status === 'FAILED');
+
+            const container = document.getElementById('logsContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="p-12 text-center text-slate-600">No activity found.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(log => {
+                const isSuccess = log.status === 'SUCCESS';
+                const statusClass = isSuccess ? 'status-success' : 'status-failed';
+                
+                return `
+                <div class="grid grid-cols-12 gap-4 p-4 text-sm hover:bg-slate-800/50 transition-colors items-center font-mono">
+                    <div class="col-span-2 text-slate-500 text-xs">${log.timestamp.split(',')[1] || log.timestamp}</div>
+                    <div class="col-span-3 font-bold text-slate-200 truncate">${log.teamName}</div>
+                    <div class="col-span-2 text-center">
+                        <span class="text-xs font-bold text-blue-400 bg-blue-900/30 px-2 py-1 rounded border border-blue-800">#${log.puzzleId}</span>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="px-2 py-1 rounded text-xs font-bold border ${statusClass}">${log.status}</span>
+                    </div>
+                    <div class="col-span-3 text-slate-400 truncate">${log.details}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('hover:bg-slate-800');
+            });
+            const activeBtn = document.getElementById('filter' + filter.charAt(0) + filter.slice(1).toLowerCase());
+            activeBtn.classList.add('bg-blue-600', 'text-white');
+            renderLogs();
+        }
+
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            const btn = document.getElementById('refreshBtn');
+            if (autoRefresh) {
+                btn.className = 'px-4 py-2 rounded border flex items-center gap-2 text-sm font-bold transition-colors bg-green-900/30 border-green-700 text-green-400';
+                document.getElementById('statusText').textContent = 'ONLINE';
+                startAutoRefresh();
+            } else {
+                btn.className = 'px-4 py-2 rounded border flex items-center gap-2 text-sm font-bold transition-colors bg-slate-900 border-slate-700 text-slate-500';
+                document.getElementById('statusText').textContent = 'PAUSED';
+                clearInterval(refreshInterval);
+            }
+        }
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(fetchAndRender, 3000);
+        }
+
+        function exportLogs() {
+            const logs = localStorage.getItem('pokemonHuntLogs') || '[]';
+            const blob = new Blob([logs], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pykachu_logs_${Date.now()}.json`;
+            a.click();
+        }
+
+        function clearLogs() {
+            if (confirm("Wipe all data? This cannot be undone.")) {
+                localStorage.setItem('pokemonHuntLogs', '[]');
+                renderLogs();
+            }
+        }
+    </script>
+</body>
+</html>
